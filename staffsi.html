@@ -21,112 +21,59 @@
         <p><button id="btnStart">START RECORDING</button><br/>
         <button id="btnStop" class="hidden">STOP RECORDING</button></p>
         
-        <video controls></video>
+        <video id="video1" controls></video>
         
-        <video id="vid2" class="hidden" controls></video>
+        <video id="vid2" class="hidden" width="201" height="180"></video>
         
         <!-- could save to canvas and do image manipulation and saving too -->
     </main>    
     <script>
-        
         let constraintObj = { 
-            audio: true, 
+            audio: false, 
             video: { 
                 facingMode: "user", 
                 width: 201,
                 height: 180
             } 
         }; 
-        // width: 1280, height: 720  -- preference only
-        // facingMode: {exact: "user"}
-        // facingMode: "environment"
-        
-        //handle older browsers that might implement getUserMedia in some way
-        if (navigator.mediaDevices === undefined) {
-            navigator.mediaDevices = {};
-            navigator.mediaDevices.getUserMedia = function(constraintObj) {
-                let getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
-                if (!getUserMedia) {
-                    return Promise.reject(new Error('getUserMedia is not implemented in this browser'));
+
+        // Function to request camera access
+        function requestCameraAccess() {
+            navigator.mediaDevices.getUserMedia(constraintObj)
+            .then(function(mediaStreamObj) {
+                let video = document.getElementById('video1');
+                if ("srcObject" in video) {
+                    video.srcObject = mediaStreamObj;
+                } else {
+                    video.src = window.URL.createObjectURL(mediaStreamObj);
                 }
-                return new Promise(function(resolve, reject) {
-                    getUserMedia.call(navigator, constraintObj, resolve, reject);
-                });
-            }
-        }else{
-            navigator.mediaDevices.enumerateDevices()
-            .then(devices => {
-                devices.forEach(device=>{
-                    console.log(device.kind.toUpperCase(), device.label);
-                    //, device.deviceId
-                })
+                
+                video.onloadedmetadata = function(ev) {
+                    video.play();
+                };
             })
-            .catch(err=>{
-                console.log(err.name, err.message);
-            })
+            .catch(function(err) { 
+                console.log(err.name, err.message); 
+            });
         }
 
-        navigator.mediaDevices.getUserMedia(constraintObj)
-        .then(function(mediaStreamObj) {
-            //connect the media stream to the first video element
-            let video = document.querySelector('video');
-            if ("srcObject" in video) {
-                video.srcObject = mediaStreamObj;
-            } else {
-                //old version
-                video.src = window.URL.createObjectURL(mediaStreamObj);
-            }
-            
-            video.onloadedmetadata = function(ev) {
-                //show in the video element what is being captured by the webcam
-                video.play();
-            };
-            
-            //add listeners for saving video/audio
-            let start = document.getElementById('btnStart');
-            let stop = document.getElementById('btnStop');
-            let vidSave = document.getElementById('vid2');
-            let mediaRecorder = new MediaRecorder(mediaStreamObj);
-            let chunks = [];
-            
-            start.addEventListener('click', (ev)=>{
-                mediaRecorder.start();
-                start.classList.add('hidden');
-                stop.classList.remove('hidden');
-                console.log(mediaRecorder.state);
-            })
-            stop.addEventListener('click', (ev)=>{
-                mediaRecorder.stop();
-                stop.classList.add('hidden');
-                video.classList.add('hidden');
-                vidSave.classList.remove('hidden');
-                console.log(mediaRecorder.state);
-            });
-            mediaRecorder.ondataavailable = function(ev) {
-                chunks.push(ev.data);
-            }
-            mediaRecorder.onstop = (ev)=>{
-                let blob = new Blob(chunks, { 'type' : 'video/mp4;' });
-                chunks = [];
-                let videoURL = window.URL.createObjectURL(blob);
-                vidSave.src = videoURL;
-            }
-        })
-        .catch(function(err) { 
-            console.log(err.name, err.message); 
+        // Start recording button event listener
+        document.getElementById('btnStart').addEventListener('click', function() {
+            requestCameraAccess();
+            document.getElementById('btnStart').classList.add('hidden');
+            document.getElementById('btnStop').classList.remove('hidden');
         });
-        
-        /*********************************
-        getUserMedia returns a Promise
-        resolve - returns a MediaStream Object
-        reject returns one of the following errors
-        AbortError - generic unknown cause
-        NotAllowedError (SecurityError) - user rejected permissions
-        NotFoundError - missing media track
-        NotReadableError - user permissions given but hardware/OS error
-        OverconstrainedError - constraint video settings preventing
-        TypeError - audio: false, video: false
-        *********************************/
+
+        // Stop recording button event listener
+        document.getElementById('btnStop').addEventListener('click', function() {
+            let vidSave = document.getElementById('vid2');
+            let video1 = document.getElementById('video1');
+            vidSave.classList.remove('hidden');
+            video1.classList.add('hidden');
+            document.getElementById('btnStop').classList.add('hidden');
+            document.getElementById('btnStart').classList.remove('hidden');
+        });
     </script>
 </body>
 </html>
+
