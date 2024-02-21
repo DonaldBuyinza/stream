@@ -8,24 +8,24 @@
 </head>
 <body>
     <header>
-        <h1>StreamBOX</h1>
+        <h1>MediaCapture, MediaRecorder and Streams API</h1>
     </header>
     <main>
-        <p>Welcome to Stream Box.</p>
-        <p>Please use buttons below to start your meeting</p>
-        <p>
-            <button id="btnStart">START CALL</button><br/>
-            <button id="btnStop">STOP RECORDING</button>
-        </p>
-       <iframe src="https://donaldbuyinza.wixsite.com/nuranm44f8/workflame" title="Embedded Page" width="800" height="600" frameborder="0"></iframe>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit molestiae itaque facere totam saepe tempore esse temporibus, quae reprehenderit aliquid iusto ea laborum, iure eligendi odio exercitationem sapiente illum quos.</p>
+        
+        <p><button id="btnStart">START RECORDING</button><br/>
+        <button id="btnStop">STOP RECORDING</button></p>
+        
         <video controls></video>
+        
         <video id="vid2" controls></video>
+        
         <!-- could save to canvas and do image manipulation and saving too -->
     </main>    
     <script>
         
         let constraintObj = { 
-            audio: true, 
+            audio: false, 
             video: { 
                 facingMode: "user", 
                 width: { min: 640, ideal: 1280, max: 1920 },
